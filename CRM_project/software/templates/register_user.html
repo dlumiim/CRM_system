@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="position: relative; width: 1440px;">
+    <button class="back-button" onclick="window.location.href='{% url 'projects_list' %}'" style="position: absolute; top: 56px; left: 82px; width: 83px; height: 59px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+    </button>
+    <div style="display: flex; flex-direction: column; align-items: center; width: 1440px;">
+        <h2 style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: bold; text-transform: uppercase; color: #333; margin-bottom: 20px;">Зарегистрировать сотрудника</h2>
+        {% if messages %}
+        <div style="margin-bottom: 20px;">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <form method="post" style="width: 909px;">
+            {% csrf_token %}
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div>
+                    {{ form.non_field_errors }}
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div>
+                            {{ form.username.label_tag }}
+                            {{ form.username }}
+                        </div>
+                        <div>
+                            {{ form.password1.label_tag }}
+                            {{ form.password1 }}
+                        </div>
+                        <div>
+                            {{ form.password2.label_tag }}
+                            {{ form.password2 }}
+                        </div>
+                        <div>
+                            {{ form.last_name.label_tag }}
+                            {{ form.last_name }}
+                        </div>
+                        <div>
+                            {{ form.first_name.label_tag }}
+                            {{ form.first_name }}
+                        </div>
+                        <div>
+                            {{ form.middle_name.label_tag }}
+                            {{ form.middle_name }}
+                        </div>
+                        <div>
+                            {{ form.date_of_birth.label_tag }}
+                            {{ form.date_of_birth }}
+                        </div>
+                        <div>
+                            {{ form.phone_number.label_tag }}
+                            {{ form.phone_number }}
+                        </div>
+                        <div>
+                            {{ form.email.label_tag }}
+                            {{ form.email }}
+                        </div>
+                        <div>
+                            {{ form.address.label_tag }}
+                            {{ form.address }}
+                        </div>
+                        <div>
+                            {{ form.personal_id.label_tag }}
+                            {{ form.personal_id }}
+                        </div>
+                        <div>
+                            {{ form.role.label_tag }}
+                            <select name="role" id="id_role" class="form-control">
+                                <option value="">Выберите роль</option>
+                                {% for role in roles %}
+                                <option value="{{ role.id }}">{{ role.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="action-button" style="width: 279px; height: 50px; margin-top: 20px;">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

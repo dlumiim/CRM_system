@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="position: relative; width: 1440px;">
+    <button class="back-button" onclick="window.location.href='{% url 'projects_list' %}'" style="position: absolute; top: 56px; left: 82px; width: 83px; height: 59px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+    </button>
+    <div style="display: flex; flex-direction: column; align-items: center; width: 1440px;">
+        <h2 style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: bold; text-transform: uppercase; color: #333; margin-bottom: 20px;">Добавить проект</h2>
+        <form method="post" style="width: 909px;">
+            {% csrf_token %}
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div>
+                    {{ project_form.non_field_errors }}
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div>
+                            {{ project_form.name.label_tag }}
+                            {{ project_form.name }}
+                        </div>
+                        <div>
+                            {{ project_form.manager.label_tag }}
+                            <select name="project-manager" id="id_project-manager" class="form-control">
+                                <option value="">Выберите руководителя проекта</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if project_form.initial.manager_id == user.id %}selected{% endif %}>{{ user }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="font-family: 'Inter', sans-serif; font-size: 20px; font-weight: bold; text-transform: uppercase; color: #333;">Задачи проекта</h3>
+                    <table id="task-table">
+                        <thead>
+                            <tr>
+                                <th>Название задачи</th>
+                                <th>Описание задачи</th>
+                                <th>Дата начала выполнения</th>
+                                <th>Дата окончания выполнения</th>
+                                <th>Роль</th>
+                                <th>Этап</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{ task_formset.management_form }}
+                            {% for task_form in task_formset %}
+                            <tr class="task-row">
+                                <td>{{ task_form.title.label_tag }} {{ task_form.title }}</td>
+                                <td>{{ task_form.description.label_tag }} {{ task_form.description }}</td>
+                                <td>{{ task_form.start_date.label_tag }} {{ task_form.start_date }}</td>
+                                <td>{{ task_form.end_date.label_tag }} {{ task_form.end_date }}</td>
+                                <td>
+                                    <select name="task-{{ forloop.counter0 }}-role" id="id_task-{{ forloop.counter0 }}-role" class="form-control">
+                                        <option value="">Выберите роль</option>
+                                        {% for role in roles %}
+                                        <option value="{{ role.id }}" {% if task_form.role.value == role.id %}selected{% endif %}>{{ role.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <select name="task-{{ forloop.counter0 }}-stage" id="id_task-{{ forloop.counter0 }}-stage" class="form-control">
+                                        <option value="">Выберите этап</option>
+                                        {% for stage_value, stage_label in Task.STAGE_CHOICES %}
+                                        <option value="{{ stage_value }}" {% if task_form.stage.value == stage_value %}selected{% endif %}>{{ stage_label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" id="add-task-button" class="action-button" style="width: 279px; height: 50px; margin-top: 20px;">Добавить задачу</button>
+                </div>
+                <button type="submit" class="action-button" style="width: 279px; height: 50px; margin-top: 20px;">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const taskTableBody = document.querySelector('#task-table tbody');
+    const addTaskButton = document.getElementById('add-task-button');
+    let taskCounter = parseInt(document.querySelector('input[name="task-TOTAL_FORMS"]').value) || 0;
+
+    // Получение списка ролей из переданных данных
+    const roles = JSON.parse('{{ roles|safe|escapejs }}');
+
+    // Функция для добавления новой строки задачи
+    function addTaskRow() {
+        console.log('Adding new task row'); // Добавляем лог для отладки
+
+        const newRow = document.createElement('tr');
+        newRow.className = 'task-row';
+
+        const titleCell = document.createElement('td');
+        const titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.name = `task-${taskCounter}-title`;
+        titleInput.id = `id_task-${taskCounter}-title`;
+        titleInput.className = 'form-control';
+        titleCell.appendChild(titleInput);
+
+        const descriptionCell = document.createElement('td');
+        const descriptionInput = document.createElement('textarea');
+        descriptionInput.name = `task-${taskCounter}-description`;
+        descriptionInput.id = `id_task-${taskCounter}-description`;
+        descriptionInput.className = 'form-control';
+        descriptionCell.appendChild(descriptionInput);
+
+        const startDateCell = document.createElement('td');
+        const startDateInput = document.createElement('input');
+        startDateInput.type = 'date';
+        startDateInput.name = `task-${taskCounter}-start_date`;
+        startDateInput.id = `id_task-${taskCounter}-start_date`;
+        startDateInput.className = 'form-control';
+        startDateCell.appendChild(startDateInput);
+
+        const endDateCell = document.createElement('td');
+        const endDateInput = document.createElement('input');
+        endDateInput.type = 'date';
+        endDateInput.name = `task-${taskCounter}-end_date`;
+        endDateInput.id = `id_task-${taskCounter}-end_date`;
+        endDateInput.className = 'form-control';
+        endDateCell.appendChild(endDateInput);
+
+        const roleCell = document.createElement('td');
+        const roleSelect = document.createElement('select');
+        roleSelect.name = `task-${taskCounter}-role`;
+        roleSelect.id = `id_task-${taskCounter}-role`;
+        roleSelect.className = 'form-control';
+
+        // Добавление опций для роли
+        const defaultRoleOption = document.createElement('option');
+        defaultRoleOption.value = '';
+        defaultRoleOption.text = 'Выберите роль';
+        roleSelect.appendChild(defaultRoleOption);
+
+        roles.forEach(role => {
+            const option = document.createElement('option');
+            option.value = role.id;
+            option.text = role.name;
+            roleSelect.appendChild(option);
+        });
+
+        roleCell.appendChild(roleSelect);
+
+        const stageCell = document.createElement('td');
+        const stageSelect = document.createElement('select');
+        stageSelect.name = `task-${taskCounter}-stage`;
+        stageSelect.id = `id_task-${taskCounter}-stage`;
+        stageSelect.className = 'form-control';
+
+        // Добавление опций для этапа
+        const stageChoices = [
+            { value: 'NEEDS_ASSESSMENT', label: 'Выявление потребностей' },
+            { value: 'ESTIMATION', label: 'Оценка' },
+            { value: 'PREPARATION', label: 'Подготовка' },
+            { value: 'DESIGN', label: 'Проектирование' },
+            { value: 'SOLUTION_CREATION', label: 'Создание решения' },
+            { value: 'LAUNCH_PREPARATION', label: 'Подготовка к запуску' },
+            { value: 'LAUNCH', label: 'Запуск' },
+            { value: 'SUPPORT', label: 'Поддержка' },
+            { value: 'MONITORING', label: 'Мониторинг' },
+        ];
+
+        const defaultStageOption = document.createElement('option');
+        defaultStageOption.value = '';
+        defaultStageOption.text = 'Выберите этап';
+        stageSelect.appendChild(defaultStageOption);
+
+        stageChoices.forEach(stage => {
+            const option = document.createElement('option');
+            option.value = stage.value;
+            option.text = stage.label;
+            stageSelect.appendChild(option);
+        });
+
+        stageCell.appendChild(stageSelect);
+
+        newRow.appendChild(titleCell);
+        newRow.appendChild(descriptionCell);
+        newRow.appendChild(startDateCell);
+        newRow.appendChild(endDateCell);
+        newRow.appendChild(roleCell);
+        newRow.appendChild(stageCell);
+
+        taskTableBody.appendChild(newRow);
+        taskCounter++;
+
+        // Обновляем TOTAL_FORMS в формсете
+        const totalFormsInput = document.querySelector('input[name="task-TOTAL_FORMS"]');
+        if (totalFormsInput) {
+            totalFormsInput.value = taskCounter + 1; // Увеличиваем на 1, так как начинаем с нулевого индекса
+        } else {
+            console.error('TOTAL_FORMS input not found');
+        }
+    }
+
+    // Обработчик события для кнопки добавления задачи
+    if (addTaskButton) {
+        addTaskButton.addEventListener('click', addTaskRow);
+    }
+});
+</script>
+{% endblock %}

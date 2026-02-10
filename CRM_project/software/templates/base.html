@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Mini</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bona+Nova:wght@700&family=Inter:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #BAEEFF;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        header {
+            position: relative;
+            width: 1440px;
+            padding: 20px;
+            background-color: #BAEEFF;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none; /* Убираем подчеркивание ссылки */
+        }
+        .logo-text {
+            font-family: 'Bona Nova', serif;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+        .actions {
+            display: flex;
+            gap: 20px;
+        }
+        .action-button {
+            width: 279px;
+            height: 50px;
+            background-color: white;
+            border-radius: 13px;
+            border: none;
+            font-size: 18px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .action-button:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .main-content {
+            width: 1440px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 50px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home' %}" class="logo">
+            <img src="{% static 'main/img/logocrmmini.png' %}" alt="Logo" style="height: 50px;">
+            <span class="logo-text">CRM MINI</span>
+        </a>
+        <div class="actions">
+            <button class="action-button" onclick="window.location.href='{% url 'add_project' %}'">Добавить проект</button>
+            <button class="action-button" onclick="window.location.href='{% url 'register_user' %}'">Зарегистрировать сотрудника</button>
+        </div>
+    </header>
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

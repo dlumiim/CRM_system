@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="welcome-message">Добро пожаловать!</div>
+<table onclick="window.location.href='{% url 'projects_list' %}'" style="cursor: pointer;">
+    <thead>
+        <tr>
+            <th>№</th>
+            <th>Название проекта</th>
+            <th>Руководитель проекта</th>
+            <th>Состояние проекта</th>
+            <th>Этап проекта</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for project in projects %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ project.name }}</td>
+            <td>{{ project.manager }}</td>
+            <td>{{ project.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

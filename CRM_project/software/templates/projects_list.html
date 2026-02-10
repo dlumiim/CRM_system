@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="position: relative; width: 1440px;">
+    <button class="back-button" onclick="window.location.href='{% url 'home' %}'" style="position: absolute; top: 56px; left: 82px; width: 83px; height: 59px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+    </button>
+    <div style="display: flex; flex-direction: column; align-items: center; width: 1440px;">
+        <h2 style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: bold; text-transform: uppercase; color: #333; margin-bottom: 20px;">Список проектов</h2>
+        <div style="display: flex; flex-direction: row; align-items: center; gap: 20px; margin-bottom: 20px;">
+            <form method="get" style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                <input type="text" name="q" placeholder="Поиск проекта" value="{{ request.GET.q }}" class="form-control" style="width: 300px;">
+                <button type="submit" class="action-button" style="width: 150px; height: 50px;">Поиск</button>
+            </form>
+            <div>
+                <label for="sort-by" style="font-size: 18px; font-weight: bold; color: #333;">Сортировать по:</label>
+                <select name="sort_by" id="sort-by" onchange="this.form.submit()" class="form-control" style="width: 200px;">
+                    <option value="name" {% if request.GET.sort_by == 'name' %}selected{% endif %}>Названию</option>
+                    <option value="date" {% if request.GET.sort_by == 'date' %}selected{% endif %}>Дате создания</option>
+                </select>
+            </div>
+        </div>
+        <table id="project-table">
+            <thead>
+                <tr>
+                    <th>Название проекта</th>
+                    <th>Руководитель проекта</th>
+                    <th>Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.manager }}</td>
+                    <td>{{ project.created_at|date:"d.m.Y" }}</td>
+                    <td>
+                        <button class="action-button" onclick="window.location.href='{% url 'edit_project' project.pk %}'" style="width: 279px; height: 50px;">Редактировать</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Нет проектов</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
